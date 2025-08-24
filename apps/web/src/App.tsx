@@ -6,7 +6,19 @@ export default function App() {
   const [status, setStatus] = useState('loading')
 
   useEffect(() => {
-    fetch(`${apiUrl}/health`).then(r => r.json()).then(j => setStatus(JSON.stringify(j))).catch(e => setStatus('error: ' + e.message))
+    const checkHealth = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/health`);
+        const data = await response.json();
+        setStatus(JSON.stringify(data));
+      } catch (e) {
+        setStatus('error: ' + (e as Error).message);
+      }
+    };
+
+    // Esperar un poco para que el backend inicie
+    const timer = setTimeout(checkHealth, 2000);
+    return () => clearTimeout(timer);
   }, [])
 
   return (

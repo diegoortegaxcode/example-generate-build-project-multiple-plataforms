@@ -30,7 +30,8 @@
       "resources": [],
       "shortDescription": "",
       "targets": [
-        "app"
+        "msi",
+        "nsis"
       ],
       "windows": {
         "certificateThumbprint": null,
@@ -48,6 +49,10 @@
       "all": false,
       "shell": {
         "sidecar": true
+      },
+      "http": {
+        "all": true,
+        "request": true
       }
     },
     "windows": [

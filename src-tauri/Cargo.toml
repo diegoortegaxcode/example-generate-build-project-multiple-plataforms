@@ -9,7 +9,7 @@ edition = "2021"
 tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
-tauri = { version = "1.5.4", features = ["shell-sidecar"] }
+tauri = { version = "1.5.4", features = ["shell-sidecar", "http-all"] }
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "time"] }
 serde = { version = "1.0", features = ["derive"] }
