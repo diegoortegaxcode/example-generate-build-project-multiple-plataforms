@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+# Install Chocolatey
+RUN powershell -Command \
+    Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+# Install Node.js, Rust, and Visual Studio Build Tools
+RUN choco install -y nodejs-lts rust-ms visualstudio2019buildtools visualstudio2019-workload-vctools
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy your project files
+COPY . /app
+WORKDIR /app
+
+# Build the project
+RUN pnpm install
+RUN cd backend && pnpm run build && pnpm run pkg:windows
+RUN cd src-tauri && cargo tauri build --target x86_64-pc-windows-msvc

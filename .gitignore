@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.pnpm-store
+.pnpm-debug.log
+
+# Build outputs
+dist
+dist-ssr
+*.local
+target/
+dist-bin/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# SQLite database
+*.db
+*.db-journal
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini

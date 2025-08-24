@@ -1,0 +1,20 @@
+[package]
+name = "tauri_app"
+version = "0.1.0"
+description = "Tauri Vite Nest Prisma Example"
+authors = ["You"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5.1", features = [] }
+
+[dependencies]
+tauri = { version = "1.5.4", features = ["shell-sidecar"] }
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "time"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

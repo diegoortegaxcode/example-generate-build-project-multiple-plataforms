@@ -1,0 +1,21 @@
+{
+  "name": "tauri-vite-nest-prisma-example",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "pnpm -w -r run dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "build:web": "pnpm --filter web build",
+    "build:backend": "pnpm --filter backend build && pnpm --filter backend prisma:generate && pnpm --filter backend pkg:build",
+    "build:all": "pnpm run build:web && pnpm run build:backend && pnpm --filter backend copy:binaries",
+    "build:tauri": "pnpm run build:all && cd src-tauri && cargo tauri build",
+    "build:tauri:linux": "pnpm run build:all && cd src-tauri && cargo tauri build --target x86_64-unknown-linux-gnu",
+    "build:tauri:macos": "pnpm run build:all && cd src-tauri && cargo tauri build --target x86_64-apple-darwin",
+    "build:tauri:windows": "pnpm run build:all && cd src-tauri && cargo tauri build --target x86_64-pc-windows-msvc"
+  }
+}
