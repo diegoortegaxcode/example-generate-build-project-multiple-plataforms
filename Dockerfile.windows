@@ -1,22 +1,59 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
 # Install Chocolatey
 RUN powershell -Command \
     Set-ExecutionPolicy Bypass -Scope Process -Force; \
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    [System.Net.ServicePointManager]::SecurityProtocol = 3072; \
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-# Install Node.js, Rust, and Visual Studio Build Tools
-RUN choco install -y nodejs-lts rust-ms visualstudio2019buildtools visualstudio2019-workload-vctools
+# Install Node.js and basic tools
+RUN choco install -y nodejs-lts git 7zip
+
+# Install Visual Studio Build Tools with specific workloads
+RUN choco install -y visualstudio2022buildtools
+RUN choco install -y visualstudio2022-workload-vctools
+
+# Install Rust
+RUN powershell -Command \
+    Invoke-WebRequest -Uri 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe' -OutFile 'rustup-init.exe'; \
+    .\rustup-init.exe -y --default-toolchain stable; \
+    Remove-Item .\rustup-init.exe
+
+# Add Rust to PATH
+RUN setx PATH "%PATH%;C:\Users\ContainerAdministrator\.cargo\bin"
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@8.9.0
 
-# Copy your project files
-COPY . /app
+# Set working directory
 WORKDIR /app
 
-# Build the project
+# Copy project files
+COPY package.json pnpm-workspace.yaml ./
+COPY backend/package.json ./backend/
+COPY apps/web/package.json ./apps/web/
+
+# Install dependencies
 RUN pnpm install
-RUN cd backend && pnpm run build && pnpm run pkg:windows
-RUN cd src-tauri && cargo tauri build --target x86_64-pc-windows-msvc
+
+# Copy all source files
+COPY . .
+
+# Build backend
+RUN cd backend && pnpm run build && pnpm run prisma:generate && pnpm run pkg:windows
+
+# Build frontend
+RUN pnpm run build:web
+
+# Install tauri-cli and build
+RUN powershell -Command \
+    $env:PATH += ';C:\Users\ContainerAdministrator\.cargo\bin'; \
+    cargo install tauri-cli@1.5.6; \
+    cd src-tauri; \
+    cargo tauri build
+
+# Create output directory and copy built files
+RUN mkdir C:\output
+RUN powershell -Command \
+    Copy-Item 'src-tauri\target\release\bundle\msi\*' 'C:\output\' -Recurse -ErrorAction SilentlyContinue; \
+    Copy-Item 'src-tauri\target\release\bundle\nsis\*' 'C:\output\' -Recurse -ErrorAction SilentlyContinue
